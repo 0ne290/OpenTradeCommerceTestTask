@@ -6,9 +6,10 @@ public class GetTranslationHandler(ITranslator translator, ICache cache)
 {
     public async Task<string> Handle(GetTranslationCommand request)
     {
-        var translationsByLanguage = new Dictionary<string, string>(request.Languages.Count);
+        var languages = request.Languages.ToHashSet();
+        var translationsByLanguage = new Dictionary<string, string>(languages.Count);
         
-        foreach (var language in request.Languages)
+        foreach (var language in languages)
         {
             if (_cache.TryGetTranslation(request.Text, language, out var translation))
                 translationsByLanguage.Add(language, translation);
