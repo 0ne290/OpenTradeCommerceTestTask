@@ -2,5 +2,5 @@ namespace Core.Interfaces;
 
 public interface ICache
 {
-    string TryGetTranslation(string text, string language);
+    bool TryGetTranslation(string text, string language, out string? translation);
 }
