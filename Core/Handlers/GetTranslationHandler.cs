@@ -15,7 +15,14 @@ public class GetTranslationHandler(ITranslator translator, ICache cache)
                 translationsByLanguage.Add(language, translation);
             else
             {
-                var translation = await _translator.Translate(text, language);
+                try
+                {
+                    var translation = await _translator.Translate(text, language);
+                }
+                catch (ArgumentException)
+                {
+                    continue;
+                }
                 _cache.SetTranslation(request.Text, language, translation);
                 translationsByLanguage.Add(language, translation);
             }
