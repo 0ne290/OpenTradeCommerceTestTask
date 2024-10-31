@@ -13,8 +13,10 @@ public class YandexTranslate(HttpClient httpClient, string folderId) : ITranslat
                 $"{{ \"folderId\": \"{_folderId}\", \"texts\": [\"{text}\"], \"targetLanguageCode\": \"{language}\" }}",
                 Encoding.UTF8, "application/json"));
 
-        if (!response.IsSuccessStatusCode)
-            throw new InvalidOperationException("Failed to translate text. Please check if the folder ID and API key are correct.");
+        if (response.StatusCode == HttpStatusCode.Forbidden)
+            throw new InvalidOperationException("Failed to translate text. Incorrect folder ID, API key and/or security settings of folder.");
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+            throw new ArgumentException("Failed to translate text. Incorrect language code.");
         
         var responseBody = await response.Content.ReadAsStringAsync();
         var translation = (string)JsonConvert.DeserializeObject<dynamic>(responseBody)!.translations[0].text;
