@@ -1,28 +1,27 @@
 using Core.Commands;
+using Core.Dtos;
+using Core.Interfaces;
+using MediatR;
 
 namespace Core.Handlers;
 
-public class GetTranslationHandler(ITranslator translator, ICache cache)
+public class GetTranslationHandler(ITranslator translator, ICache cache) : IRequestHandler<GetTranslationCommand, TranslationResult>
 {
-    public async Task<string> Handle(GetTranslationCommand request)
+    public async Task<TranslationResult> Handle(GetTranslationCommand request, CancellationToken cancellationToken)
     {
         var languages = request.Languages.ToHashSet();
         var translationsByLanguage = new Dictionary<string, string>(languages.Count);
-        
+
         foreach (var language in languages)
         {
             if (_cache.TryGetTranslation(request.Text, language, out var translation))
-                translationsByLanguage.Add(language, translation);
+                translationsByLanguage.Add(language, translation!);
             else
             {
-                try
-                {
-                    var translation = await _translator.Translate(text, language);
-                }
-                catch (ArgumentException)
-                {
-                    continue;
-                }
+                var result = await _translator.Translate(request.Text, language);
+
+                translation = result.IsFailed ? string.Join(" ", result.Errors.Select(e => e.Message)) : result.Value;
+
                 _cache.SetTranslation(request.Text, language, translation);
                 translationsByLanguage.Add(language, translation);
             }
@@ -31,7 +30,7 @@ public class GetTranslationHandler(ITranslator translator, ICache cache)
         return new TranslationResult { SourceText = request.Text, TranslationsByLanguage = translationsByLanguage };
     }
 
-    private ITranslator _translator = translator;
+    private readonly ITranslator _translator = translator;
 
-    private ICache _cache = cache;
+    private readonly ICache _cache = cache;
 }

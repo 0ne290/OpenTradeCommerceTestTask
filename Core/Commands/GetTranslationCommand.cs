@@ -1,6 +1,9 @@
+using Core.Dtos;
+using MediatR;
+
 namespace Core.Commands;
 
-public class GetTranslationCommand
+public class GetTranslationCommand : IRequest<TranslationResult>
 {
     public required string Text { get; init; }
     

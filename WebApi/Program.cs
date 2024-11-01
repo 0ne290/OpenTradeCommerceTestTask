@@ -1,27 +1,74 @@
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
+using Serilog.Events;
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+namespace WebApi;
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+internal static class Program
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    private static async Task Main(string[] args)
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Override("Microsoft.AspNetCore.Hosting", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Mvc", LogEventLevel.Warning)
+            .MinimumLevel.Override("Microsoft.AspNetCore.Routing", LogEventLevel.Warning)
+            
+            .Enrich.FromLogContext()
+            
+            .WriteTo.Async(c => c.Console())
+            
+            .CreateLogger();
+        
+        try
+        {
+            Log.Information("Starting host build");
+            
+            var builder = WebApplication.CreateBuilder(args);
+
+            var yandexTranslateConfiguration = builder.Configuration.GetRequiredSection("YandexTranslate");
+            var yandexTranslateApiKey = yandexTranslateConfiguration["ApiKey"] ??
+                                        throw new Exception("Configuration item \"YandexTranslate.ApiKey\" not found.");
+            var yandexTranslateFolderId = yandexTranslateConfiguration["FolderId"] ??
+                                          throw new Exception("Configuration item \"YandexTranslate.FolderId\" not found.");
+            var yandexTranslateApiUrl = yandexTranslateConfiguration["ApiUrl"] ??
+                                        throw new Exception("Configuration item \"YandexTranslate.ApiUrl\" not found.");
+
+            await builder.Services.AddApplicationServices();
+            builder.Services.AddSerilog();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddControllersWithViews().AddNewtonsoftJson();
+            builder.Services.AddGrpc();
+        
+            var app = builder.Build();
+            
+            app.UseSerilogRequestLogging();
+            app.UseMiddleware<ExceptionLoggingMiddleware>();
+            
+            app.UseHsts();
+            app.UseHttpsRedirection();
+            
+            app.UseStaticFiles();
+            
+            app.UseRouting();
+            //app.UseAuthentication();
+            app.UseAuthorization();
+            
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller}/{action}/{id?}");
+            
+            app.MapGrpcService<Service2>();
+            
+            Log.Information("Success to build host. Starting web application");
+            
+            await app.RunAsync();
+        }
+        catch (Exception ex)
+        {
+            Log.Fatal(ex, "Failed to build host");
+        }
+        finally
+        {
+            await Log.CloseAndFlushAsync();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();

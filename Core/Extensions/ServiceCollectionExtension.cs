@@ -1,6 +1,14 @@
+using Core.Commands;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Core.Extensions;
 
-public class ServiceCollectionExtension
+public static class ServiceCollectionExtension
 {
-    
+    public static IServiceCollection AddServices(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetTranslationCommand).Assembly));
+
+        return services;
+    }
 }

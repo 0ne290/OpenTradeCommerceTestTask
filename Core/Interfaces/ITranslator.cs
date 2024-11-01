@@ -1,6 +1,8 @@
+using FluentResults;
+
 namespace Core.Interfaces;
 
 public interface ITranslator
 {
-    Task<string> Translate(string text, string language);
+    Task<Result<string>> Translate(string text, string language);
 }

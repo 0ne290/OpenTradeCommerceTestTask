@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.Translator.Extensions;
@@ -14,7 +15,7 @@ public static class ServiceCollectionExtension
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Api-Key", apiKey);
         });
 
-        services.AddScoped<YandexTranslate>(serviceProvider =>
+        services.AddScoped<ITranslator, YandexTranslate>(serviceProvider =>
             new YandexTranslate(
                 serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("YandexTranslateApi"), folderId));
 
