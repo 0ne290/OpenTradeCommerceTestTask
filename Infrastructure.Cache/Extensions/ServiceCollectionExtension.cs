@@ -5,9 +5,9 @@ namespace Infrastructure.Cache.Extensions;
 
 public static class ServiceCollectionExtension
 {
-    public static IServiceCollection AddServices(this IServiceCollection services, string yandexTranslateApiUrl, string apiKey, string folderId)
+    public static IServiceCollection AddServices(this IServiceCollection services, long sizeLimit)
     {
-        services.AddMemoryCache(o => o.SizeLimit = 65536);
+        services.AddMemoryCache(o => o.SizeLimit = sizeLimit);
 
         services.AddSingleton<ICache, MemoryCache>();
 

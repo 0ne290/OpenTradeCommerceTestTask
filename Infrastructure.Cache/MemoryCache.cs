@@ -8,8 +8,11 @@ public class MemoryCache(IMemoryCache cache) : ICache
     public bool TryGetTranslation(string text, string language, out string? translation) =>
         _cache.TryGetValue($"Text : {text}; Language : {language}.", out translation);
 
-    public void SetTranslation(string text, string language, string translation) =>
-        _cache.Set($"Text : {text}; Language : {language}.", translation);
+    public void SetTranslation(string text, string language, string translation)
+    {
+        _cache.Set($"Text : {text}; Language : {language}.", translation,
+            new MemoryCacheEntryOptions { Size = text.Length + language.Length + translation.Length });
+    }
 
     private readonly IMemoryCache _cache = cache;
 }
