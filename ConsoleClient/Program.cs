@@ -1,22 +1,31 @@
-﻿using ConsoleClient.gRpc;
-using ConsoleClient.Implementations;
+﻿using ConsoleClient.Implementations;
 using ConsoleClient.Interfaces;
+using ConsoleClient.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using GetTranslationsOfManyTextsIntoOneLanguageCommand = ConsoleClient.Models.GetTranslationsOfManyTextsIntoOneLanguageCommand;
-using GetTranslationsOfOneTextIntoManyLanguagesCommand = ConsoleClient.Models.GetTranslationsOfOneTextIntoManyLanguagesCommand;
 
 namespace ConsoleClient;
 
 internal static class Program
 {
-    private static async Task Main(string[] args)
+    private static async Task Main()
     {
-        var request1 = JsonConvert.DeserializeObject<GetTranslationsOfOneTextIntoManyLanguagesCommand>(args[1]);
-        var request2 = JsonConvert.DeserializeObject<GetTranslationsOfManyTextsIntoOneLanguageCommand>(args[2]);
-        
+        GetTranslationsOfOneTextIntoManyLanguagesCommand? request1 = null;
+        GetTranslationsOfManyTextsIntoOneLanguageCommand? request2 = null;
+        try
+        {
+            Console.Write("Запрос на перевод одного текста на множество языков: ");
+            request1 = JsonConvert.DeserializeObject<GetTranslationsOfOneTextIntoManyLanguagesCommand>(Console.ReadLine()!);
+            Console.Write("Запрос на перевод множества текстов на один язык: ");
+            request2 = JsonConvert.DeserializeObject<GetTranslationsOfManyTextsIntoOneLanguageCommand>(Console.ReadLine()!);
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+
         var services = new ServiceCollection();
-        services.AddGrpcClient<Translator.TranslatorClient>(o =>
+        services.AddGrpcClient<gRpc.Translator.TranslatorClient>(o =>
         {
             o.Address = new Uri("https://localhost:443");
         });
