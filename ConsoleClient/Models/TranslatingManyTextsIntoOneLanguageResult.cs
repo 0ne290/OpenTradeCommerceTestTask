@@ -1,3 +1,5 @@
+using Newtonsoft.Json;
+
 namespace ConsoleClient.Models;
 
 public class TranslatingManyTextsIntoOneLanguageResult
