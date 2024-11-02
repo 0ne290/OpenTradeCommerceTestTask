@@ -1,7 +1,10 @@
 ﻿using ConsoleClient.gRpc;
-using Google.Protobuf.WellKnownTypes;
+using ConsoleClient.Implementations;
+using ConsoleClient.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using GetTranslationsOfManyTextsIntoOneLanguageCommand = ConsoleClient.Models.GetTranslationsOfManyTextsIntoOneLanguageCommand;
+using GetTranslationsOfOneTextIntoManyLanguagesCommand = ConsoleClient.Models.GetTranslationsOfOneTextIntoManyLanguagesCommand;
 
 namespace ConsoleClient;
 
@@ -9,27 +12,30 @@ internal static class Program
 {
     private static async Task Main(string[] args)
     {
+        var request1 = JsonConvert.DeserializeObject<GetTranslationsOfOneTextIntoManyLanguagesCommand>(args[1]);
+        var request2 = JsonConvert.DeserializeObject<GetTranslationsOfManyTextsIntoOneLanguageCommand>(args[2]);
+        
         var services = new ServiceCollection();
         services.AddGrpcClient<Translator.TranslatorClient>(o =>
         {
             o.Address = new Uri("https://localhost:443");
         });
+        services.AddScoped<ITranslator, GRpcTranslator>();
+        
         var serviceProvider = services.BuildServiceProvider();
-        var client = serviceProvider.GetRequiredService<Translator.TranslatorClient>();
 
-        var info = await client.GetInformationAsync(new Empty());
-        var translations = await client.GetTranslationAsync(new GetTranslationCommand
-            { Text = "Текст для тестирования перевода с доступом через gRPC.", Languages = { "en", "de", "fshv" } });
-        
-        //Console.WriteLine($"Info: {info}. Translation result:");
-        //Console.WriteLine($"\tSourceText: {translations.SourceText}.");
-        //foreach (var translationByLanguage in translations.TranslationsByLanguage)
-        //{
-        //    Console.WriteLine($"\tLanguage: {translationByLanguage.Key}.");
-        //    Console.WriteLine($"\tTranslation: {translationByLanguage.Value}.");
-        //}
-        
+        await using var scope = serviceProvider.CreateAsyncScope();
+        var translator = scope.ServiceProvider.GetRequiredService<ITranslator>();
+
+        var info = await translator.GetInformation();
         Console.WriteLine(JsonConvert.SerializeObject(info));
-        Console.WriteLine(JsonConvert.SerializeObject(translations));
+        
+        if (request1 != null)
+            Console.WriteLine(JsonConvert.SerializeObject(await translator.GetTranslationsOfOneTextIntoManyLanguages(request1)));
+        if (request2 != null)
+            Console.WriteLine(JsonConvert.SerializeObject(await translator.GetTranslationsOfManyTextsIntoOneLanguage(request2)));
+        
+        Console.Write(Environment.NewLine + "Для завершения программы нажмите любую клавишу...");
+        Console.ReadKey();
     }
 }

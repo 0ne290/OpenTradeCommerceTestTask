@@ -7,21 +7,35 @@ option csharp_namespace = "ConsoleClient.gRpc";
 package translator;
  
 service Translator {
-  rpc GetTranslation(GetTranslationCommand) returns (TranslationResult);
+  rpc GetTranslationsOfOneTextIntoManyLanguages(GetTranslationsOfOneTextIntoManyLanguagesCommand) returns (TranslatingOneTextIntoManyLanguagesResult);
+  
+  rpc GetTranslationsOfManyTextsIntoOneLanguage(GetTranslationsOfManyTextsIntoOneLanguageCommand) returns (TranslatingManyTextsIntoOneLanguageResult);
   
   rpc GetInformation(google.protobuf.Empty) returns (Information);
 }
 
-message GetTranslationCommand {
+message GetTranslationsOfOneTextIntoManyLanguagesCommand {
   string text = 1;
   
   repeated string languages = 2;
 }
 
-message TranslationResult {
+message TranslatingOneTextIntoManyLanguagesResult {
   string sourceText = 1;
   
   map<string, string> translationsByLanguage = 2;
+}
+
+message GetTranslationsOfManyTextsIntoOneLanguageCommand  {
+    repeated string texts = 1;
+    
+    string language = 2;
+}
+
+message TranslatingManyTextsIntoOneLanguageResult {
+  string language = 1;
+  
+  map<string, string> translationsBySourceTexts = 2;
 }
 
 message Information {

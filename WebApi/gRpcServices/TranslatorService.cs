@@ -7,14 +7,24 @@ namespace WebApi.gRpcServices;
 
 public class TranslatorService(IMediator mediator) : Translator.TranslatorBase
 {
-    public override async Task<TranslationResult> GetTranslation(GetTranslationCommand request,
+    public override async Task<TranslatingOneTextIntoManyLanguagesResult> GetTranslationsOfOneTextIntoManyLanguages(GetTranslationsOfOneTextIntoManyLanguagesCommand request,
         ServerCallContext context)
     {
-        var command = Mappers.GetTranslationCommand.FromProtobufMessageToCoreCommand(request);
+        var command = Mappers.GetTranslationsOfOneTextIntoManyLanguagesCommand.FromProtobufMessageToCoreCommand(request);
 
         var translations = await _mediator.Send(command);
 
-        return Mappers.TranslationResult.FromCoreDtoToProtobufMessage(translations);
+        return Mappers.TranslatingOneTextIntoManyLanguagesResult.FromCoreDtoToProtobufMessage(translations);
+    }
+    
+    public override async Task<TranslatingManyTextsIntoOneLanguageResult> GetTranslationsOfManyTextsIntoOneLanguage(GetTranslationsOfManyTextsIntoOneLanguageCommand request,
+        ServerCallContext context)
+    {
+        var command = Mappers.GetTranslationsOfManyTextsIntoOneLanguageCommand.FromProtobufMessageToCoreCommand(request);
+
+        var translations = await _mediator.Send(command);
+
+        return Mappers.TranslatingManyTextsIntoOneLanguageResult.FromCoreDtoToProtobufMessage(translations);
     }
 
     public override async Task<Information> GetInformation(Empty _, ServerCallContext context) =>
