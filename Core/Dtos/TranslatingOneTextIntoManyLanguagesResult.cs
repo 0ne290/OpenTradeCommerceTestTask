@@ -1,6 +1,6 @@
 namespace Core.Dtos;
 
-public class TranslationResult
+public class TranslatingOneTextIntoManyLanguagesResult
 {
     public required string SourceText { get; init; }
 

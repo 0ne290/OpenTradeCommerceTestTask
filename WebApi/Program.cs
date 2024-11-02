@@ -1,5 +1,6 @@
 using Serilog;
 using Serilog.Events;
+using WebApi.gRpcServices;
 using WebApi.Middlewares;
 
 namespace WebApi;
@@ -40,7 +41,7 @@ internal static class Program
             builder.Services.AddSerilog();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllersWithViews().AddNewtonsoftJson();
-            //builder.Services.AddGrpc();
+            builder.Services.AddGrpc();
         
             var app = builder.Build();
             
@@ -60,7 +61,7 @@ internal static class Program
                 name: "default",
                 pattern: "{controller}/{action}/{id?}");
             
-            //app.MapGrpcService<Service2>();
+            app.MapGrpcService<TranslatorService>();
             
             Log.Information("Success to build host. Starting web application");
             

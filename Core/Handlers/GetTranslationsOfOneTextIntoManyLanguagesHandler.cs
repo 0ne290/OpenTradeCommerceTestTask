@@ -5,9 +5,9 @@ using MediatR;
 
 namespace Core.Handlers;
 
-public class GetTranslationHandler(ITranslator translator, ICache cache) : IRequestHandler<GetTranslationCommand, TranslationResult>
+public class GetTranslationsOfOneTextIntoManyLanguagesHandler(ITranslator translator, ICache cache) : IRequestHandler<GetTranslationsOfOneTextIntoManyLanguagesCommand, TranslatingOneTextIntoManyLanguagesResult>
 {
-    public async Task<TranslationResult> Handle(GetTranslationCommand request, CancellationToken cancellationToken)
+    public async Task<TranslatingOneTextIntoManyLanguagesResult> Handle(GetTranslationsOfOneTextIntoManyLanguagesCommand request, CancellationToken cancellationToken)
     {
         var languages = request.Languages.ToHashSet();
         var translationsByLanguage = new Dictionary<string, string>(languages.Count);
@@ -27,7 +27,7 @@ public class GetTranslationHandler(ITranslator translator, ICache cache) : IRequ
             }
         }
 
-        return new TranslationResult { SourceText = request.Text, TranslationsByLanguage = translationsByLanguage };
+        return new TranslatingOneTextIntoManyLanguagesResult { SourceText = request.Text, TranslationsByLanguage = translationsByLanguage };
     }
 
     private readonly ITranslator _translator = translator;

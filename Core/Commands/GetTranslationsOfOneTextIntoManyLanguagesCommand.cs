@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Core.Commands;
 
-public class GetTranslationCommand : IRequest<TranslationResult>
+public class GetTranslationsOfOneTextIntoManyLanguagesCommand : IRequest<TranslatingOneTextIntoManyLanguagesResult>
 {
     [JsonProperty(Required = Required.Always, PropertyName = "text")]
     public required string Text { get; init; }

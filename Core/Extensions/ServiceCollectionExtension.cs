@@ -7,7 +7,7 @@ public static class ServiceCollectionExtension
 {
     public static IServiceCollection AddServices(this IServiceCollection services)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetTranslationCommand).Assembly));
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetTranslationsOfOneTextIntoManyLanguagesCommand).Assembly));
 
         return services;
     }

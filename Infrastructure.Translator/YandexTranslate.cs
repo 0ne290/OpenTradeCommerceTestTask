@@ -12,7 +12,7 @@ public class YandexTranslate(HttpClient httpClient, string folderId) : ITranslat
     {
         var response = await _httpClient.PostAsync((string?)null,
             new StringContent(
-                $"{{ \"folderId\": \"{_folderId}\", \"texts\": [\"{text}\"], \"targetLanguageCode\": \"{language}\" }}",
+                $"{{\"folderId\":\"{_folderId}\",\"texts\":[\"{text}\"],\"targetLanguageCode\":\"{language}\"}}",
                 Encoding.UTF8, "application/json"));
         
         if (response.StatusCode == HttpStatusCode.BadRequest)
@@ -25,6 +25,25 @@ public class YandexTranslate(HttpClient httpClient, string folderId) : ITranslat
         var translation = (string)JsonConvert.DeserializeObject<dynamic>(responseBody)!.translations[0].text;
 
         return translation;
+    }
+    
+    public async Task<Result<IEnumerable<string>>> Translate(IEnumerable<string> texts, string language)
+    {
+        var response = await _httpClient.PostAsync((string?)null,
+            new StringContent(
+                $"{{\"folderId\":\"{_folderId}\",\"texts\":[{string.Join(",", texts.Select(t => $"\"{t}\""))}],\"targetLanguageCode\":\"{language}\"}}",
+                Encoding.UTF8, "application/json"));
+        
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+            return Result.Fail("Failed to translate texts. Incorrect language code.");
+        if (!response.IsSuccessStatusCode)
+            throw new InvalidOperationException(
+                "Failed to translate texts. Incorrect folder ID, API key and/or security settings of folder.");
+
+        var responseBody = await response.Content.ReadAsStringAsync();
+        var translations = (IEnumerable<object>)JsonConvert.DeserializeObject<dynamic>(responseBody)!.translations;
+
+        return Result.Ok(translations.Select(t => (string)((dynamic)t).text));
     }
 
     private readonly HttpClient _httpClient = httpClient;

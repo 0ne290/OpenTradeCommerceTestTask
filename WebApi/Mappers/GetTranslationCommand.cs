@@ -5,5 +5,5 @@ namespace WebApi.Mappers;
 [Mapper]
 public static partial class GetTranslationCommand
 {
-    public static partial Core.Commands.GetTranslationCommand FromProtobufMessageToCoreCommand(gRpc.GetTranslationCommand message);
+    public static partial Core.Commands.GetTranslationsOfOneTextIntoManyLanguagesCommand FromProtobufMessageToCoreCommand(gRpc.GetTranslationCommand message);
 }
