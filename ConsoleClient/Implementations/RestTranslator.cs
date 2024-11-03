@@ -9,20 +9,16 @@ public class RestTranslator(HttpClient httpClient, string getTranslationsOfOneTe
 {
     public Task<TranslatingOneTextIntoManyLanguagesResult> GetTranslationsOfOneTextIntoManyLanguages(GetTranslationsOfOneTextIntoManyLanguagesCommand request)
     {
-        var requestBody = Mappers.GetTranslationsOfOneTextIntoManyLanguagesCommand.FromModelToProtobufMessage(request);
-    
         var response = await _httpClient.PostAsync(_getTranslationsOfOneTextIntoManyLanguagesUrl,
-            new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json"));
+            new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
         return JsonConvert.DeserializeObject<TranslatingOneTextIntoManyLanguagesResult>(await response.Content.ReadAsStringAsync());
     }
 
     public Task<TranslatingManyTextsIntoOneLanguageResult> GetTranslationsOfManyTextsIntoOneLanguage(GetTranslationsOfManyTextsIntoOneLanguageCommand request)
     {
-        var requestBody = Mappers.GetTranslationsOfManyTextsIntoOneLanguageCommand.FromModelToProtobufMessage(request);
-    
         var response = await _httpClient.PostAsync(_getTranslationsOfManyTextsIntoOneLanguageUrl,
-            new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json"));
+            new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
 
         return JsonConvert.DeserializeObject<TranslatingManyTextsIntoOneLanguageResult>(await response.Content.ReadAsStringAsync());
     }
