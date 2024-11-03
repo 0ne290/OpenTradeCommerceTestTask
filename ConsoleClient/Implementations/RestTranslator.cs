@@ -7,7 +7,7 @@ namespace ConsoleClient.Implementations;
 
 public class RestTranslator(HttpClient httpClient, string getTranslationsOfOneTextIntoManyLanguagesUrl, string getTranslationsOfManyTextsIntoOneLanguageUrl, string getInformationUrl) : ITranslator
 {
-    public Task<TranslatingOneTextIntoManyLanguagesResult> GetTranslationsOfOneTextIntoManyLanguages(GetTranslationsOfOneTextIntoManyLanguagesCommand request)
+    public async Task<TranslatingOneTextIntoManyLanguagesResult> GetTranslationsOfOneTextIntoManyLanguages(GetTranslationsOfOneTextIntoManyLanguagesCommand request)
     {
         var response = await _httpClient.PostAsync(_getTranslationsOfOneTextIntoManyLanguagesUrl,
             new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
@@ -15,7 +15,7 @@ public class RestTranslator(HttpClient httpClient, string getTranslationsOfOneTe
         return JsonConvert.DeserializeObject<TranslatingOneTextIntoManyLanguagesResult>(await response.Content.ReadAsStringAsync());
     }
 
-    public Task<TranslatingManyTextsIntoOneLanguageResult> GetTranslationsOfManyTextsIntoOneLanguage(GetTranslationsOfManyTextsIntoOneLanguageCommand request)
+    public async Task<TranslatingManyTextsIntoOneLanguageResult> GetTranslationsOfManyTextsIntoOneLanguage(GetTranslationsOfManyTextsIntoOneLanguageCommand request)
     {
         var response = await _httpClient.PostAsync(_getTranslationsOfManyTextsIntoOneLanguageUrl,
             new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json"));
@@ -23,7 +23,7 @@ public class RestTranslator(HttpClient httpClient, string getTranslationsOfOneTe
         return JsonConvert.DeserializeObject<TranslatingManyTextsIntoOneLanguageResult>(await response.Content.ReadAsStringAsync());
     }
 
-    public Task<Information> GetInformation()
+    public async Task<Information> GetInformation()
     {
         var response = await _httpClient.GetAsync(_getInformationUrl);
 
