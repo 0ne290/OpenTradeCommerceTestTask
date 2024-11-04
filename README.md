@@ -8,7 +8,7 @@
 
 # Как разворачивать для Windows:
 
-1. Создайте PFX-сертификат в папке WebApi. Сделать это можно с помощью команды dotnet dev-certs https --clean --import путь_и_имя_сертификата.pfx -p ваш_пароль. Либо другим способом. Вот ссылка на статью про создание сертификата разработки: https://learn.microsoft.com/ru-ru/dotnet/core/tools/dotnet-dev-certs.
+1. Создайте PFX-сертификат в папке WebApi. Сделать это можно с помощью команды dotnet dev-certs https -ep путь_и_имя_сертификата.pfx -p ваш_пароль --trust. Либо другим способом. Вот ссылка на статью про создание сертификата разработки: https://learn.microsoft.com/ru-ru/dotnet/core/tools/dotnet-dev-certs.
 2. Отредактировать appsettings.json. Если конкретно, то заменить значения элементов в секциях YandexTranslate и Kestrel.Endpoints.https.Certificate на корректные.
 3. Выполнить скрипт Windows_BuildServer.ps1 в, например, Power Shell с указанием пути к папке, в которую будет собираться приложение.
 4. Запустить файл WebApi.exe в папке с построенным приложением.
