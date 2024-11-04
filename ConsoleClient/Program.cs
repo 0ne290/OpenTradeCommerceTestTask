@@ -12,29 +12,28 @@ internal static class Program
     {
         var services = new ServiceCollection();
 
-        Console.WriteLine("Введите способ доступа к сервису перевода (g - gRPC, r - REST): ");
-        var selectOfServer = Console.ReadLine()!;
-        if (selectOfServer == "g")
+        Console.Write("Введите способ доступа к сервису перевода (g - gRPC, r - REST): ");
+        switch (Console.ReadLine()!)
         {
-            services.AddGrpcClient<gRpc.Translator.TranslatorClient>(o =>
-            {
-                o.Address = new Uri("https://localhost:443");
-            });
-            services.AddScoped<ITranslator, GRpcTranslator>();
-        }
-        else if (selectOfServer == "r")
-        {
-            services.AddHttpClient("TranslatorApi", httpClient =>
-            {
-                httpClient.DefaultRequestHeaders.Clear();
-                httpClient.BaseAddress = new Uri("https://localhost:443/translator");
-            });
-            services.AddScoped<ITranslator, RestTranslator>(serviceProvider => new RestTranslator(serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("TranslatorApi"), "translate-one-text-into-many-languages", "translate-many-texts-into-one-language", "information"));
-        }
-        else
-        {
-            Console.Write(Environment.NewLine + "Некорректный ввод. Для завершения программы нажмите любую клавишу...");
-            Console.ReadKey();
+            case "g":
+                services.AddGrpcClient<gRpc.Translator.TranslatorClient>(o =>
+                {
+                    o.Address = new Uri("https://localhost:443");
+                });
+                services.AddScoped<ITranslator, GRpcTranslator>();
+                break;
+            case "r":
+                services.AddHttpClient("TranslatorApi", httpClient =>
+                {
+                    httpClient.DefaultRequestHeaders.Clear();
+                    httpClient.BaseAddress = new Uri("https://localhost");
+                });
+                services.AddScoped<ITranslator, RestTranslator>(serviceProvider => new RestTranslator(serviceProvider.GetRequiredService<IHttpClientFactory>().CreateClient("TranslatorApi"), "translator/translate-one-text-into-many-languages", "translator/translate-many-texts-into-one-language", "translator/information"));
+                break;
+            default:
+                Console.Write(Environment.NewLine + "Некорректный ввод. Для завершения программы нажмите любую клавишу...");
+                Console.ReadKey();
+                break;
         }
         
         GetTranslationsOfOneTextIntoManyLanguagesCommand? request1 = null;
@@ -57,7 +56,7 @@ internal static class Program
         var translator = scope.ServiceProvider.GetRequiredService<ITranslator>();
 
         var info = await translator.GetInformation();
-        Console.WriteLine($"Информация о сервисе: {JsonConvert.SerializeObject(info)}.");
+        Console.WriteLine($"{Environment.NewLine}Информация о сервисе: {JsonConvert.SerializeObject(info)}.");
         
         if (request1 != null)
             Console.WriteLine($"Результат выполнения запроса на перевод одного текста на множество языков: {JsonConvert.SerializeObject(await translator.GetTranslationsOfOneTextIntoManyLanguages(request1))}.");
